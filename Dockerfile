@@ -23,7 +23,7 @@ EXPOSE 22
 COPY ./python/Container_With_Most_Water.txt /usr/local/bin/myapp
 
 # Use ADD instead of COPY (unnecessary extraction risk)
-ADD https://example.com/somefile.tar.gz /tmp/somefile.tar.gz
+#ADD https://example.com/somefile.tar.gz /tmp/somefile.tar.gz
 
 # Run a process with excessive privileges
 CMD ["bash"]
