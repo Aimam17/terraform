@@ -33,17 +33,6 @@ build:
   - docker build --pull --no-cache -t "${FULL_IMAGE}" .
   - docker push "${FULL_IMAGE}"
 
-container_scanning:
-  stage: scan
-  image: registry.gitlab.com/security-products/container-scanning:latest
-  allow_failure: true
-  variables:
-    CS_IMAGE: "${FULL_IMAGE}"
-    CS_REGISTRY_USER: "${CI_REGISTRY_USER}"
-    CS_REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
-  script:
-  - "/analyzer run"
-
 sast:
   stage: scan
   image: registry.gitlab.com/security-products/sast:latest
