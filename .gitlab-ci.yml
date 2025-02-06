@@ -1,0 +1,48 @@
+stages:
+  - build
+  - scan
+  - deploy
+
+variables:
+  IMAGE_NAME: "${CI_PROJECT_NAME}"
+  IMAGE_TAG: "${CI_COMMIT_REF_SLUG}"
+  FULL_IMAGE: "${IMAGE_NAME}:${IMAGE_TAG}"
+
+# Build Stage
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
+  script:
+    - docker build --pull --no-cache -t "${FULL_IMAGE}" .
+    - docker push "${FULL_IMAGE}"
+
+# Container Scanning Stage
+container_scanning:
+  stage: scan
+  image: registry.gitlab.com/security-products/container-scanning:latest
+  allow_failure: true # Allow pipeline to continue even if vulnerabilities are found
+  variables:
+    CS_IMAGE: "${FULL_IMAGE}"
+    CS_REGISTRY_USER: "${CI_REGISTRY_USER}"
+    CS_REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
+  script:
+    - /analyzer run
+
+# SAST (Static Application Security Testing) - Optional
+sast:
+  stage: scan
+  image: registry.gitlab.com/security-products/sast:latest
+  allow_failure: true
+  script:
+    - /analyzer run
+
+# Deploy Stage (Example)
+deploy:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Deploying ${FULL_IMAGE}..."
