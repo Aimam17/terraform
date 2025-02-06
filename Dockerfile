@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 EXPOSE 22
 
 # Set an environment variable insecurely
-ENV APP_SECRET="hardcoded_secret"
+#ENV APP_SECRET="hardcoded_secret"
 
 # Copy files without verifying integrity
 COPY ./python/Container_With_Most_Water.txt /usr/local/bin/myapp
