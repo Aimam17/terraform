@@ -1,46 +1,52 @@
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+
+# container_scanning:
+#   variables:
+#     DOCKER_IMAGE: ...
+#     DOCKER_USER: ...
+#     DOCKER_PASSWORD: ...
 stages:
-  - build
-  - scan
-  - deploy
-
+- build
+- scan
+- deploy
 variables:
-  FULL_IMAGE:  "$CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}"
-
-# Build Stage
+  FULL_IMAGE: "$CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}"
 build:
   stage: build
   image: docker:latest
   services:
-    - docker:dind
+  - docker:dind
   before_script:
-    - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
+  - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
   script:
-    - docker build --pull --no-cache -t "${FULL_IMAGE}" .
-    - docker push "${FULL_IMAGE}"
-
-# Container Scanning Stage
+  - docker build --pull --no-cache -t "${FULL_IMAGE}" .
+  - docker push "${FULL_IMAGE}"
 container_scanning:
   stage: scan
   image: registry.gitlab.com/security-products/container-scanning:latest
-  allow_failure: true # Allow pipeline to continue even if vulnerabilities are found
+  allow_failure: true
   variables:
     CS_IMAGE: "${FULL_IMAGE}"
     CS_REGISTRY_USER: "${CI_REGISTRY_USER}"
     CS_REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
   script:
-    - /analyzer run
-
-# SAST (Static Application Security Testing) - Optional
+  - "/analyzer run"
 sast:
   stage: scan
   image: registry.gitlab.com/security-products/sast:latest
   allow_failure: true
   script:
-    - /analyzer run
-
-# Deploy Stage (Example)
+  - "/analyzer run"
 deploy:
   stage: deploy
   image: alpine:latest
   script:
-    - echo "Deploying ${FULL_IMAGE}..."
+  - echo "Deploying ${FULL_IMAGE}..."
+include:
+- template: Jobs/Container-Scanning.gitlab-ci.yml
