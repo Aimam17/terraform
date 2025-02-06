@@ -22,6 +22,7 @@ stages:
 
 variables:
   FULL_IMAGE: "$CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}"
+  CS_IMAGE: "${FULL_IMAGE}"
 
 build:
   stage: build
