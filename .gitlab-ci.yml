@@ -17,8 +17,8 @@ build:
   before_script:
     - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
   script:
-    - docker build --pull --no-cache -t "${FULL_IMAGE}" .
-    - docker push "${FULL_IMAGE}"
+    - docker build --pull --no-cache -t "${CI_REGISTRY}"/"${FULL_IMAGE}" .
+    - docker push "${CI_REGISTRY}"/"${FULL_IMAGE}"
 
 # Container Scanning Stage
 container_scanning:
