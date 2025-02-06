@@ -11,12 +11,17 @@
 #     DOCKER_IMAGE: ...
 #     DOCKER_USER: ...
 #     DOCKER_PASSWORD: ...
+include:
+  - template: Jobs/Container-Scanning.gitlab-ci.yml
+
 stages:
-- build
-- scan
-- deploy
+  - build
+  - scan
+  - deploy
+
 variables:
   FULL_IMAGE: "$CI_REGISTRY_IMAGE:${CI_COMMIT_REF_SLUG}"
+
 build:
   stage: build
   image: docker:latest
@@ -27,6 +32,7 @@ build:
   script:
   - docker build --pull --no-cache -t "${FULL_IMAGE}" .
   - docker push "${FULL_IMAGE}"
+
 container_scanning:
   stage: scan
   image: registry.gitlab.com/security-products/container-scanning:latest
@@ -37,16 +43,17 @@ container_scanning:
     CS_REGISTRY_PASSWORD: "${CI_REGISTRY_PASSWORD}"
   script:
   - "/analyzer run"
+
 sast:
   stage: scan
   image: registry.gitlab.com/security-products/sast:latest
   allow_failure: true
   script:
   - "/analyzer run"
+
 deploy:
   stage: deploy
   image: alpine:latest
   script:
   - echo "Deploying ${FULL_IMAGE}..."
-include:
-- template: Jobs/Container-Scanning.gitlab-ci.yml
+
