@@ -1,29 +1,32 @@
-# Use an outdated and unsupported base image
-FROM ubuntu:14.04 
+FROM ubuntu:14.04
 
-# Run as root (bad practice)
+MAINTAINER Example Corp <security@example.com>
+
+ARG APP_SECRET=supersecret123
+ENV APP_SECRET=${APP_SECRET}
+
 USER root
 
-# Install packages with no version pinning (can lead to unexpected updates and vulnerabilities)
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    netcat \
-    nano \
-    python \
-    && rm -rf /var/lib/apt/lists/*
+RUN curl -k -L http://example.com/script.sh -o /usr/local/bin/script.sh && \
+    chmod +x /usr/local/bin/script.sh
 
-# Expose a privileged port (requires root privileges)
-EXPOSE 22
-
-# Set an environment variable insecurely
-#ENV APP_SECRET="hardcoded_secret"
-
-# Copy files without verifying integrity
 COPY ./python/Container_With_Most_Water.txt /usr/local/bin/myapp
 
-# Use ADD instead of COPY (unnecessary extraction risk)
-#ADD https://example.com/somefile.tar.gz /tmp/somefile.tar.gz
+COPY . /app
 
-# Run a process with excessive privileges
-CMD ["bash"]
+RUN chmod -R 777 /app
+
+EXPOSE 22
+EXPOSE 80
+
+VOLUME ["/data"]
+
+ENV PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
+
+RUN mkdir -p /var/run/sshd && \
+    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
+    echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+
+RUN echo "${APP_SECRET}" > /root/secret.txt
+
+CMD ["bash", "-lc", "service ssh start && echo 'Starting app (not really)…'; tail -f /dev/null"]
