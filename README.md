@@ -145,10 +145,13 @@ This file must document:
 - Security implications and trade-offs.
 - Exact steps to reproduce and validate success.
 
-
 ## 🧹 Cleanup
 
 ```bash
 helm uninstall my-nginx
 kubectl delete configmap nginx-custom-conf nginx-html
 ```
+
+## 🐍 Python Greeting Service
+Privateer is using Python and Migroservices. This task will cover building docker and deploying python web server to k8s cluster by helm. Please see the [Documentation README](python/readme.md) for more details.
+

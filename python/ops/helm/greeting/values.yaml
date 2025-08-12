@@ -1,0 +1,11 @@
+image:
+  repository: greeting
+  tag: latest
+
+envs:
+  ENV: prod
+
+service:
+  type: ClusterIP
+  port: 80
+
