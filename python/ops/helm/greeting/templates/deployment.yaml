@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greeting.fullname" . }}
+  labels:
+    {{- include "greeting.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "greeting.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "greeting.labels" . | nindent 8 }}
+	{{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: {{ template "greeting.fullname" . }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: http

@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  greeting:
+    build:
+      context: ../../
+      dockerfile: ./ops/docker/Dockerfile
+    image: greeting:latest
