@@ -86,7 +86,7 @@ data "aws_ami" "amazon_linux" {
 
 # Security group for EC2 instance
 resource "aws_security_group" "ec2_sg" {
-  name        = "terraform-test-ec2-sg"
+  name_prefix = "terraform-test-ec2-sg-"
   description = "Security group for Terraform test EC2 instance"
   vpc_id      = data.aws_vpc.default.id
 
@@ -108,6 +108,10 @@ resource "aws_security_group" "ec2_sg" {
 
   tags = {
     Name = "terraform-test-ec2-sg"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
