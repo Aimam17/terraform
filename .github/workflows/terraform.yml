@@ -62,6 +62,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
+        id: tf-plan
         run: terraform plan -no-color
         continue-on-error: true
 
