@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -33,10 +33,10 @@ data "aws_subnets" "all" {
 
 # Create a subnet if none exist in the default VPC
 resource "aws_subnet" "default" {
-  count             = length(data.aws_subnets.all.ids) == 0 ? 1 : 0
-  vpc_id            = data.aws_vpc.default.id
-  cidr_block        = cidrsubnet(data.aws_vpc.default.cidr_block, 8, 0)
-  availability_zone = data.aws_availability_zones.available.names[0]
+  count                   = length(data.aws_subnets.all.ids) == 0 ? 1 : 0
+  vpc_id                  = data.aws_vpc.default.id
+  cidr_block              = cidrsubnet(data.aws_vpc.default.cidr_block, 8, 0)
+  availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
 
   tags = {
@@ -50,7 +50,7 @@ data "aws_subnets" "public" {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
-  
+
   filter {
     name   = "map-public-ip-on-launch"
     values = ["true"]
